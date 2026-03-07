@@ -25,9 +25,6 @@ Outputs:
   out/fusion/results.csv                - per-model metrics (all 5 stages)
   out/fusion/stage_curve.png            - AUC and F1 vs. number of RS stages available
   out/fusion/train_col_means.csv        - column means for inference imputation
-
-Usage:
-    uv run python pipelines/fusion/train_models.py
 """
 
 import pickle
