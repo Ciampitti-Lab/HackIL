@@ -1,4 +1,4 @@
-# ── Stage 1: Build Next.js static export ─────────────────────────────────────
+# Part 1: Build Next.js static export
 FROM node:20-alpine AS frontend-builder
 
 WORKDIR /frontend
@@ -8,25 +8,24 @@ RUN npm ci
 
 COPY app/frontend/ ./
 RUN npm run build
-# Output lands in /frontend/out
 
 
-# ── Stage 2: Python / Flask runtime ──────────────────────────────────────────
-FROM python:3.11-slim
+# Part 2: Python / Flask runtime
+FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim
 
 WORKDIR /app
 
-# Pull in the Next.js build output as Flask's static directory
 COPY --from=frontend-builder /frontend/out ./static
 
-# Install Python dependencies first (layer-cached unless requirements change)
-COPY app/backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
 
-# Copy Flask application
+COPY pipelines/ ./pipelines/
+COPY models/ ./models/
+COPY data/processed/ ./data/processed/
+
 COPY app/backend/ ./
 
 EXPOSE 8000
 
-# 2 workers is plenty for a free-tier instance; adjust as needed
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "server:app"]
+CMD ["uv", "run", "gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "server:app"]

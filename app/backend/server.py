@@ -6,15 +6,13 @@ STATIC = Path(__file__).parent / "static"
 app = Flask(__name__, static_folder=str(STATIC))
 
 
-# ── API routes ────────────────────────────────────────────────────────────────
-
+# API routes
 @app.route("/api/ping")
 def ping():
     return jsonify({"status": "ok", "message": "Flask backend is alive"})
 
 
-# ── Serve Next.js static export ───────────────────────────────────────────────
-
+# Next.js static export
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_frontend(path: str):

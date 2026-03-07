@@ -9,11 +9,9 @@ __pycache__
 .venv
 venv
 
-# Data / models (large files, not needed in the image)
+# Raw / temp data not needed in the image
 data/raw
 data/tmp
-data/processed
-models
 
 # Dev artifacts
 .git
