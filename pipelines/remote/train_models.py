@@ -147,15 +147,20 @@ def best_threshold_metrics(model, X_test, y_test, threshold: float | None = None
     }
 
 
-def find_threshold(model, X_train, y_train) -> float:
+def find_threshold(model, X_train, y_train, beta: float = 2.0) -> float:
     """
-    Find the decision threshold that maximises F1 on training-set predictions.
+    Find the decision threshold that maximises F-beta on training-set predictions.
+
+    beta=2 weights recall twice as much as precision, reflecting the scouting
+    priority: missing a deficient field (false negative) is more costly than
+    a wasted scout visit (false positive).
     This threshold is stored and applied fixed to the test set to avoid leakage.
     """
     proba = model.predict_proba(X_train)[:, 1]
     precisions, recalls, thresholds = precision_recall_curve(y_train, proba)
-    f1s = 2 * precisions * recalls / (precisions + recalls + 1e-9)
-    return float(thresholds[np.argmax(f1s[:-1])]) if len(thresholds) else 0.5
+    b2 = beta ** 2
+    fbeta = (1 + b2) * precisions * recalls / (b2 * precisions + recalls + 1e-9)
+    return float(thresholds[np.argmax(fbeta[:-1])]) if len(thresholds) else 0.5
 
 
 def main() -> None:
@@ -212,24 +217,24 @@ def main() -> None:
 
     results = []
     fitted = {}   # name -> (model, scaled, threshold)
-    best_auc, best_name = -np.inf, None
+    best_recall, best_name = -np.inf, None
 
     for name, (model, scaled) in clf_defs.items():
         Xtr = X_aug_sc if scaled else X_aug
         Xte = X_test_sc if scaled else X_test_np
         model.fit(Xtr, y_aug)
-        # Threshold found on training predictions only, applied fixed here.
+        # F-beta (β=2) threshold found on training predictions only, applied fixed here.
         thresh = find_threshold(model, Xtr, y_aug)
         m = best_threshold_metrics(model, Xte, y_test, threshold=thresh)
         results.append({"model": name, **m})
         fitted[name] = (model, scaled, thresh)
         print(f"  {name:<20}  AUC={m['AUC']:.4f}  F1={m['F1']:.4f}  "
               f"Recall={m['Recall']:.4f}  Specif={m['Specif']:.4f}  (thresh={m['Threshold']})")
-        if m["AUC"] > best_auc:
-            best_auc, best_name = m["AUC"], name
+        if m["Recall"] > best_recall:
+            best_recall, best_name = m["Recall"], name
 
     best_model, best_scaled, best_thresh = fitted[best_name]
-    print(f"\n  Best model: {best_name} (AUC={best_auc:.4f}, thresh={best_thresh:.3f})")
+    print(f"\n  Best model: {best_name} (Recall={best_recall:.4f}, thresh={best_thresh:.3f})")
     with open(MODELS_DIR / f"{best_name}_clf.pkl", "wb") as f:
         pickle.dump({"model": best_model, "scaler": scaler, "col_means": col_means,
                      "feat_cols": feat_cols, "stages": STAGES, "threshold": best_thresh}, f)
