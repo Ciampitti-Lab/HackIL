@@ -5,15 +5,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { TrialGeoJSON } from "./ScoutingMap";
 
-// Leaflet must not render on the server — dynamic import with ssr:false
+// Leaflet must not render on the server
 const ScoutingMap = dynamic(() => import("./ScoutingMap"), { ssr: false });
 
-// ── Types ─────────────────────────────────────────────────────────────────────
 type Site = { trial: number; site: string; state: string };
 
 const STAGE_LABELS = ["V6", "V7", "V8", "V9", "V10"];
 
-// ── Styles (inline to avoid extra CSS file) ───────────────────────────────────
+// (inline to avoid extra CSS file)
 const s = {
   page: {
     display: "flex",
@@ -185,13 +184,12 @@ const s = {
   }),
 };
 
-// ── Main ─────────────────────────────────────────────────────────────────────
 export default function Home() {
   const [sites, setSites] = useState<Site[]>([]);
   const [selectedTrial, setSelectedTrial] = useState<number | null>(null);
   const [geoData, setGeoData] = useState<TrialGeoJSON | null>(null);
-  const [nStages, setNStages] = useState(3); // 1–5; default V6+V7+V8
-  const [useFusion, setUseFusion] = useState(false);
+  const [nStages, setNStages] = useState(5); // 1–5; default all stages (V10)
+  const [useFusion, setUseFusion] = useState(true);
   const [loading, setLoading] = useState(false);
 
   // Load site list on mount
@@ -262,7 +260,7 @@ export default function Home() {
           </span>
         </div>
 
-        {/* ── Controls panel ── */}
+        {/* Controls panel */}
         <div style={s.controls}>
           {/* Site selector */}
           <div>
@@ -328,7 +326,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ── Map ── */}
+        {/* Map */}
         <div style={s.mapArea}>
           {loading && (
             <div
@@ -352,6 +350,23 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Disclaimer footer */}
+      <footer
+        style={{
+          flexShrink: 0,
+          padding: "6px 16px",
+          borderTop: "1px solid #1e293b",
+          background: "#0a0e18",
+          fontSize: 10,
+          color: "#334155",
+          textAlign: "center" as const,
+          lineHeight: 1.5,
+        }}
+      >
+        <strong style={{ color: "#475569" }}>Proof of concept.</strong> Predictions shown include plots used during model training and are not an independent validation &mdash; for demonstration only.
+        Test-set honest performance: AUC&nbsp;0.634 (Satellite only) / AUC&nbsp;0.904 (Satellite + Soil &amp; Weather).
+      </footer>
     </div>
   );
 }

@@ -81,6 +81,12 @@ function renderLayer(
       const confPct = Math.round((pred === 1 ? prob : 1 - prob) * 100);
       const statusColor = pred === 1 ? DEFICIENT_COLOR : SUFFICIENT_COLOR;
 
+      // Compute polygon centroid for the proximal link
+      const ring = (feature.geometry as GeoJSON.Polygon).coordinates[0];
+      const centLat = (ring.reduce((s, c) => s + c[1], 0) / ring.length).toFixed(4);
+      const centLng = (ring.reduce((s, c) => s + c[0], 0) / ring.length).toFixed(4);
+      const proximalUrl = `/proximal?trial=${data.trial}&plot=${p.plot_id}&lat=${centLat}&lng=${centLng}&field=${encodeURIComponent(`${data.site}, ${data.state}`)}`;
+
       leafletLayer.bindPopup(`
         <div style="min-width:160px">
           <div style="font-size:15px;font-weight:600;margin-bottom:8px">
@@ -99,6 +105,7 @@ function renderLayer(
             Plant N: ${p.plant_n_kgha} kg/ha<br/>
             Side N: ${p.side_n_kgha} kg/ha
           </div>
+          ${pred === 1 ? `<a href="${proximalUrl}" style="display:block;margin-top:10px;padding:7px 10px;background:#f59e0b1a;border:1px solid #f59e0b55;border-radius:6px;color:#f59e0b;font-size:12px;font-weight:600;text-decoration:none;text-align:center;">Do targeted scouting</a>` : ""}
         </div>
       `);
 

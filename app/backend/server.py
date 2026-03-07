@@ -14,7 +14,11 @@ _local_root  = _HERE.parent.parent
 _ROOT = _docker_root if (_docker_root / "models").exists() else _local_root
 
 PREDICTIONS_DIR = _ROOT / "data/processed/predictions"
-STATIC = _HERE / "static"
+
+# Static files: Docker copies out/ -> backend/static; locally Next.js out/ is at frontend/out/
+_docker_static = _HERE / "static"
+_local_static  = _HERE.parent / "frontend" / "out"
+STATIC = _docker_static if _docker_static.exists() else _local_static
 
 # Load precomputed proximal sensing predictions from the CSV at startup.
 # Schema: image_path, true_class, predicted_class, confidence, correct, dataset
@@ -112,11 +116,19 @@ def proximal_samples():
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def serve_frontend(path: str):
-    # Serve the requested file if it exists (JS, CSS, images, etc.)
+    # Serve the requested file if it exists (JS bundle, CSS, images, etc.)
     target = STATIC / path
-    if path and target.exists():
+    if path and target.is_file():
         return send_from_directory(STATIC, path)
-    # Fall back to index.html for SPA-style client-side routing
+    # Next.js static export generates flat HTML files: proximal → proximal.html
+    flat_html = STATIC / f"{path}.html"
+    if path and flat_html.exists():
+        return send_from_directory(STATIC, f"{path}.html")
+    # Nested index.html fallback (proximal/index.html) for older Next.js layouts
+    nested = STATIC / path / "index.html"
+    if path and nested.exists():
+        return send_from_directory(str(STATIC / path), "index.html")
+    # Root fallback
     return send_from_directory(STATIC, "index.html")
 
 
