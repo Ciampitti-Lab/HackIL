@@ -14,4 +14,4 @@ data/tmp
 
 # Frontend build files
 node_modules/
-
+.next/
