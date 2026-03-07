@@ -74,7 +74,7 @@ def pivot_stages_wide(agg: pd.DataFrame) -> pd.DataFrame:
     if dup_mask.any():
         n_dups = dup_mask.sum()
         print(
-            f"  Deduplicating {n_dups} rows with duplicate (trial, plot_id, stage) — averaging values"
+            f"  Deduplicating {n_dups} rows with duplicate (trial, plot_id, stage) -> averaging values"
         )
         agg = agg.groupby(["trial", "plot_id", "stage"], as_index=False)[
             FEATURE_COLS

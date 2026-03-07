@@ -1,0 +1,40 @@
+/* Leaflet core; must be imported globally for map tiles and controls */
+@import "leaflet/dist/leaflet.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: "DM Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Leaflet popup tweaks — kept dark as it overlays satellite imagery */
+.leaflet-popup-content-wrapper {
+  background: #1a1f2e;
+  border: 1px solid #2d3748;
+  border-radius: 10px;
+  color: #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+.leaflet-popup-tip {
+  background: #1a1f2e;
+}
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.leaflet-container {
+  background: #0f1117;
+}

@@ -1,0 +1,19 @@
+# Node
+node_modules
+.next
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+
+# Raw / temp data not needed in the image
+data/raw
+data/tmp
+
+# Dev artifacts
+.git
+.env*
+*.log

@@ -244,7 +244,7 @@ def download_trial(trial: dict) -> Path | None:
         feats = gj.get("features", [])
         if feats and _FINAL_BANDS_OUT[0] not in (feats[0].get("properties") or {}):
             print(
-                f"  [INVALID] {fname} has no spectral data — deleting and reprocessing"
+                f"  [INVALID] {fname} has no spectral data; deleting and reprocessing"
             )
             out_path.unlink()
         else:
