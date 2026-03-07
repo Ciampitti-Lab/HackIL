@@ -1,17 +1,32 @@
+import csv
 import json
+import random
 from pathlib import Path
 
 from flask import Flask, Response, abort, jsonify, send_from_directory
 
 _HERE = Path(__file__).parent
 
-# In Docker: server.py is at /app/server.py, data lives at /app/data/
-# Locally:   server.py is at app/backend/server.py, data lives at data/ (3 up)
-_docker_data = _HERE / "data/processed/predictions"
-_local_data  = _HERE.parent.parent.parent / "data/processed/predictions"
-PREDICTIONS_DIR = _docker_data if _docker_data.exists() else _local_data
+# In Docker: server.py is at /app/server.py, data and models live at /app/
+# Locally:   server.py is at app/backend/server.py, so project root is 2 up
+_docker_root = _HERE
+_local_root  = _HERE.parent.parent
+_ROOT = _docker_root if (_docker_root / "models").exists() else _local_root
 
+PREDICTIONS_DIR = _ROOT / "data/processed/predictions"
 STATIC = _HERE / "static"
+
+# Load precomputed proximal sensing predictions from the CSV at startup.
+# Schema: image_path, true_class, predicted_class, confidence, correct, dataset
+_PROXIMAL_CSV = PREDICTIONS_DIR / "proximal_sensing.csv"
+_PROXIMAL_ROWS: list[dict] = []
+_PROXIMAL_CLASSES = ["ALL Present", "ALLAB", "KAB", "NAB", "PAB", "ZNAB"]
+if _PROXIMAL_CSV.exists():
+    with open(_PROXIMAL_CSV, newline="") as _f:
+        _PROXIMAL_ROWS = list(csv.DictReader(_f))
+    print(f"[proximal] loaded {len(_PROXIMAL_ROWS)} precomputed predictions")
+else:
+    print(f"[proximal] CSV not found at {_PROXIMAL_CSV}")
 
 # Pre-load all trial GeoJSONs into memory at startup so every request is a
 # simple dict lookup with no disk I/O. Simplified workflow for this demo app
@@ -60,6 +75,37 @@ def predictions(trial_id: int):
     # Return raw JSON string; avoids re-serialising the pre-loaded dict.
     payload = json.dumps(_TRIALS[trial_id], separators=(",", ":"))
     return Response(payload, mimetype="application/json")
+
+
+@app.route("/api/proximal/stats")
+def proximal_stats():
+    """Per-class accuracy on the test split from precomputed predictions."""
+    test_rows = [r for r in _PROXIMAL_ROWS if r["dataset"] == "test"]
+    stats = {}
+    for cls in _PROXIMAL_CLASSES:
+        cls_rows = [r for r in test_rows if r["true_class"] == cls]
+        if cls_rows:
+            accuracy = sum(1 for r in cls_rows if r["correct"] == "True") / len(cls_rows)
+            stats[cls] = {"accuracy": round(accuracy, 4), "n": len(cls_rows)}
+    overall = sum(1 for r in test_rows if r["correct"] == "True") / len(test_rows) if test_rows else 0
+    return jsonify({"overall_accuracy": round(overall, 4), "per_class": stats, "n_test": len(test_rows)})
+
+
+@app.route("/api/proximal/samples")
+def proximal_samples():
+    """Return a random sample of precomputed predictions for each class.
+
+    Query param: n (default 3) — number of samples per class.
+    Query param: dataset (default 'test') — split to sample from.
+    """
+    from flask import request as req
+    n = int(req.args.get("n", 3))
+    dataset = req.args.get("dataset", "test")
+    result = {}
+    for cls in _PROXIMAL_CLASSES:
+        pool = [r for r in _PROXIMAL_ROWS if r["true_class"] == cls and r["dataset"] == dataset]
+        result[cls] = random.sample(pool, min(n, len(pool)))
+    return jsonify(result)
 
 
 # Next.js static export
