@@ -5,6 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "flask>=3.0.0",
+    "gunicorn>=22.0.0",
     "lightgbm>=4.6.0",
     "matplotlib>=3.10.8",
     "scikit-learn>=1.8.0",
