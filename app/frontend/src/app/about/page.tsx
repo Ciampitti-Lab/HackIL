@@ -185,10 +185,11 @@ export default function About() {
         <div style={s.card}>
           <p style={{ ...s.p, margin: 0, lineHeight: 1.9 }}>
             <strong style={{ color: "#e2e8f0" }}>1. Remote sensing features</strong> —
-            11 spectral indices (NDVI, GNDVI, NDRE, EVI2, CIrededge, NIRv, SAVI,
-            OSAVI, TGI, MCARI, OCARI) extracted from Sentinel-2 (10 m) at growth
-            stages V6 through V10. Cloud gaps are filled using a nearest-in-time
-            mosaic strategy.
+            16 spectral features per V-stage: 5 raw reflectance bands (B02 blue, B03 green,
+            B04 red, B05 red-edge, B08 NIR) and 11 indices (NDVI, GNDVI, NDRE, EVI2,
+            CIrededge, NIRv, SAVI, OSAVI, TGI, MCARI, OCARI) extracted from Sentinel-2
+            (10 m) at growth stages V6 through V10 — 80 features total. Cloud gaps are
+            filled using a nearest-in-time mosaic strategy.
             <br />
             <strong style={{ color: "#e2e8f0" }}>2. Ground-truth labels</strong> —
             Nitrogen Nutrition Index (NNI) computed from PRNT plant tissue N and
@@ -197,11 +198,11 @@ export default function About() {
             <strong style={{ color: "#e2e8f0" }}>3. Fusion features</strong> —
             9 soil nitrate / ammonium columns (PPNT + PSNT sampling times) and
             6 growing-season weather metrics (GDD, precipitation, solar radiation,
-            heat days) aggregated over the planting → V10 window.
+            heat days) aggregated over the planting to V10 window.
             <br />
             <strong style={{ color: "#e2e8f0" }}>4. Classification</strong> —
             Logistic Regression trained with stage-dropout augmentation (robust to
-            missing V-stages) and an F-β (β=2) threshold that weights recall over
+            missing V-stages) and an F-beta (beta=2) threshold that weights recall over
             precision.
           </p>
         </div>
@@ -254,6 +255,35 @@ export default function About() {
           Satellite imagery refines but does not replace the agronomic context.
         </p>
 
+        {/* Proximal sensing */}
+        <h2 style={s.h2}>Proximal sensing (leaf image classifier)</h2>
+        <p style={s.p}>
+          A MobileNetV3-Small model fine-tuned on a public maize leaf nutrient
+          deficiency dataset classifies individual leaf images into 6 nutrient
+          classes. This complements the satellite view by confirming plot-level
+          deficiency at the individual plant level.
+        </p>
+        <div style={s.metricRow}>
+          {[
+            { label: "ALL Present", value: "97.3%" },
+            { label: "N absent", value: "100%" },
+            { label: "K absent", value: "100%" },
+            { label: "P absent", value: "98.6%" },
+            { label: "Zn absent", value: "95.2%" },
+            { label: "All absent", value: "100%" },
+          ].map((m) => (
+            <div key={m.label} style={{ ...s.metric, flex: "1 1 100px" }}>
+              <div style={s.metricLabel}>{m.label}</div>
+              <div style={{ ...s.metricValue, fontSize: 18 }}>{m.value}</div>
+            </div>
+          ))}
+        </div>
+        <p style={s.p}>
+          Overall test accuracy: <strong style={{ color: "#e2e8f0" }}>98.5%</strong> on
+          882 held-out images (7,056 train / 882 val / 882 test). Model: MobileNetV3-Small
+          via timm, fine-tuned from ImageNet weights with Optuna HPO.
+        </p>
+
         {/* Dataset */}
         <hr style={s.divider} />
         <h2 style={s.h2}>Data</h2>
@@ -299,11 +329,13 @@ export default function About() {
         <p style={s.p}>
           ML pipeline: Python · scikit-learn · XGBoost · LightGBM · Google Earth Engine
           <br />
+          Proximal model: PyTorch · timm · MobileNetV3 · Optuna
+          <br />
           Backend: Flask 3 + Gunicorn · Python 3.14 · uv
           <br />
-          Frontend: Next.js (static export) · react-leaflet · TypeScript
+          Frontend: Next.js (static export) · Leaflet · TypeScript
           <br />
-          Deployment: Docker multi-stage build → Render
+          Deployment: Docker multi-stage build to Render
         </p>
 
         {/* Team */}
@@ -311,7 +343,7 @@ export default function About() {
         <h2 style={s.h2}>Team</h2>
         <p style={s.p}>
           Built at{" "}
-          <strong style={{ color: "#e2e8f0" }}>HackIL 2025</strong> by the
+          <strong style={{ color: "#e2e8f0" }}>Precision & Digital Agriculture Hackathon</strong> by Gustavo, Leonardo, Natalia, Pedro from the
           Ciampitti Lab, Purdue University.
         </p>
       </main>
