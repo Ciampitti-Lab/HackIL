@@ -1,0 +1,21 @@
+# Node
+node_modules
+.next
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+
+# Data / models (large files, not needed in the image)
+data/raw
+data/tmp
+data/processed
+models
+
+# Dev artifacts
+.git
+.env*
+*.log
