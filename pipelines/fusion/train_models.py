@@ -12,7 +12,7 @@ Fusion strategy:
 Stage-dropout augmentation is applied only to RS stage columns:
   1. For each training plot, DROPOUT_COPIES extra rows are generated.
   2. Each copy has a random subset of RS stages replaced by training-set column means.
-  3. Soil/weather columns are never dropped — they are plot/site constants.
+  3. Soil/weather columns are never dropped; they are plot/site constants.
   4. NaN soil/weather values (plots without PSNT sampling) are filled with
      training-set column means before fitting, same imputation as RS dropout.
 
@@ -116,7 +116,7 @@ def load_data() -> tuple[pd.DataFrame, pd.Series, list[str], list[str]]:
     X = df[feat_cols].copy()
     # RS NaN filled globally (missing stage = no observation, use dataset mean)
     X[rs_feat_cols] = X[rs_feat_cols].fillna(X[rs_feat_cols].mean())
-    # SW NaN kept here — filled with training-set means after split (in main)
+    # SW NaN kept here; filled with training-set means after split (in main)
     y = (df["nni"] < 1.0).astype(int)
 
     print(f"  RS features:           {len(rs_feat_cols)}")
@@ -181,7 +181,7 @@ def simulate_stages(
     Simulate having only the first n_stages RS stages available.
 
     Columns for the remaining RS stages are replaced with training-set column means.
-    Soil/weather columns are left unchanged — they are always assumed available
+    Soil/weather columns are left unchanged; they are always assumed available
     when routing to the fusion model.
     """
     X_sim = X.copy()
