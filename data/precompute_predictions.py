@@ -112,10 +112,14 @@ def main():
             print(f"SKIP ({e})")
             continue
 
-        # Ground truth
+        # Ground truth: use plant_n_kgha / side_n_kgha (SI, kg/ha) from fusion dataset
+        # `plant_n` / `side_n` in rs_t are in lbs/acre from the shapefile
         gt = rs_t.set_index("plot_id")[
             ["nni", "n_trt", "block", "plant_n", "side_n"]
         ].copy()
+        # Pull SI columns from fusion dataset and attach to gt
+        fu_si = fu_t.set_index("plot_id")[["plant_n_kgha", "side_n_kgha"]]
+        gt = gt.join(fu_si, how="left")
         gt["is_deficient"] = (gt["nni"] < 1.0).astype(int)
 
         # Fill fusion SW NaN with training-set col_means
@@ -167,8 +171,8 @@ def main():
                 "plot_id": int(pid),
                 "n_trt": int(row["n_trt"]),
                 "block": int(row["block"]),
-                "plant_n_kgha": round(float(row["plant_n"]), 2),
-                "side_n_kgha": round(float(row["side_n"]), 2),
+                "plant_n_kgha": round(float(row["plant_n_kgha"]), 2) if pd.notna(row.get("plant_n_kgha")) else round(float(row["plant_n"]) * 1.12085, 2),
+                "side_n_kgha": round(float(row["side_n_kgha"]), 2) if pd.notna(row.get("side_n_kgha")) else round(float(row["side_n"]) * 1.12085, 2),
                 "nni": round(float(row["nni"]), 4),
                 "is_deficient": int(row["is_deficient"]),
                 **predictions.get(pid, {}),
