@@ -69,16 +69,22 @@ FEATURE_COLS_PREFIX = [
 ]
 RANDOM_STATE = 42
 DROPOUT_COPIES = 5  # augmented versions per plot per training pass
-POS_WEIGHT = (1 - 0.217) / 0.217  # ~3.6 for XGBoost scale_pos_weight
+
+# Treatments 9–16 had sidedress N applied at/after V9, so early-stage indices
+# may already see deficiency caused by experimental timing rather than predicting
+# it. Keep only treatments 1–8 for a clean, temporally consistent signal.
+TRT_KEEP = [1] + list(range(2, 9))
 
 
 def load_data() -> tuple[pd.DataFrame, pd.Series, list[str]]:
     df = pd.read_csv(DATASET)
+    df = df[df["n_trt"].isin(TRT_KEEP)].reset_index(drop=True)
     feat_cols = [
         c for c in df.columns if any(c.startswith(p) for p in FEATURE_COLS_PREFIX)
     ]
     X = df[feat_cols].fillna(df[feat_cols].mean())
     y = (df["nni"] < 1.0).astype(int)
+    print(f"  Treatments kept: {sorted(TRT_KEEP)}")
     print(f"  Features: {X.shape[1]}  |  Plots: {len(X)}")
     print(f"  N-deficient: {y.sum()}/{len(y)} ({100*y.mean():.1f}%)")
     return X, y, feat_cols
@@ -187,7 +193,7 @@ def main() -> None:
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loading dataset from {DATASET}")
+    print(f"Loading dataset from {DATASET}  [treatments {sorted(TRT_KEEP)}]")
     print("XGBoost: CUDA GPU  |  LightGBM / RF / LogReg: CPU")
     X, y, feat_cols = load_data()
 
@@ -195,6 +201,11 @@ def main() -> None:
         X, y, test_size=0.2, random_state=RANDOM_STATE, stratify=y
     )
     print(f"\n  Train: {len(X_train_df)}  |  Test: {len(X_test_df)}")
+
+    # Compute class-imbalance weight from the filtered subset.
+    pos_rate = float(y.mean())
+    pos_weight = (1 - pos_rate) / pos_rate
+    print(f"  XGBoost scale_pos_weight: {pos_weight:.2f}")
 
     col_means = X_train_df.mean()
     col_means.to_csv(OUT_DIR / "train_col_means.csv")
@@ -235,7 +246,7 @@ def main() -> None:
                 max_depth=5,
                 subsample=0.8,
                 colsample_bytree=0.8,
-                scale_pos_weight=POS_WEIGHT,
+                scale_pos_weight=pos_weight,
                 device="cuda",
                 verbosity=0,
                 eval_metric="logloss",
