@@ -12,7 +12,7 @@ Fusion strategy:
 Stage-dropout augmentation is applied only to RS stage columns:
   1. For each training plot, DROPOUT_COPIES extra rows are generated.
   2. Each copy has a random subset of RS stages replaced by training-set column means.
-  3. Soil/weather columns are never dropped; they are plot/site constants.
+  3. Soil/weather columns are never dropped — they are plot/site constants.
   4. NaN soil/weather values (plots without PSNT sampling) are filled with
      training-set column means before fitting, same imputation as RS dropout.
 
@@ -93,8 +93,11 @@ SW_FEATURE_COLS = [
 ]
 RANDOM_STATE = 42
 DROPOUT_COPIES = 5  # augmented stage-dropout copies per plot per training pass
-# ~3.1 for XGBoost, based on filtered fusion class ratio
-POS_WEIGHT = (1 - 0.246) / 0.246
+
+# Treatments 9–16 had sidedress N applied at/after V9, so early-stage indices
+# may already see deficiency caused by experimental timing rather than predicting
+# it. Keep only treatments 1–8 for a clean, temporally consistent signal.
+TRT_KEEP = [1] + list(range(2, 9))
 
 
 def load_data() -> tuple[pd.DataFrame, pd.Series, list[str], list[str]]:
@@ -107,6 +110,7 @@ def load_data() -> tuple[pd.DataFrame, pd.Series, list[str], list[str]]:
     Returns: X (all features, NaN SW preserved), y, rs_feat_cols, sw_feat_cols.
     """
     df = pd.read_csv(DATASET)
+    df = df[df["n_trt"].isin(TRT_KEEP)].reset_index(drop=True)
     rs_feat_cols = [
         c for c in df.columns if any(c.startswith(p) for p in RS_FEATURE_PREFIX)
     ]
@@ -116,9 +120,10 @@ def load_data() -> tuple[pd.DataFrame, pd.Series, list[str], list[str]]:
     X = df[feat_cols].copy()
     # RS NaN filled globally (missing stage = no observation, use dataset mean)
     X[rs_feat_cols] = X[rs_feat_cols].fillna(X[rs_feat_cols].mean())
-    # SW NaN kept here; filled with training-set means after split (in main)
+    # SW NaN kept here — filled with training-set means after split (in main)
     y = (df["nni"] < 1.0).astype(int)
 
+    print(f"  Treatments kept: {sorted(TRT_KEEP)}")
     print(f"  RS features:           {len(rs_feat_cols)}")
     print(f"  Soil/weather features: {len(sw_feat_cols)}")
     print(f"  Total features:        {len(feat_cols)}  |  Plots: {len(X)}")
@@ -181,7 +186,7 @@ def simulate_stages(
     Simulate having only the first n_stages RS stages available.
 
     Columns for the remaining RS stages are replaced with training-set column means.
-    Soil/weather columns are left unchanged; they are always assumed available
+    Soil/weather columns are left unchanged — they are always assumed available
     when routing to the fusion model.
     """
     X_sim = X.copy()
@@ -237,7 +242,7 @@ def main() -> None:
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loading fusion dataset from {DATASET}")
+    print(f"Loading fusion dataset from {DATASET}  [treatments {sorted(TRT_KEEP)}]")
     print("XGBoost: CUDA GPU  |  LightGBM / RF / LogReg: CPU")
     X, y, rs_feat_cols, sw_feat_cols = load_data()
     feat_cols = rs_feat_cols + sw_feat_cols
@@ -246,6 +251,11 @@ def main() -> None:
         X, y, test_size=0.2, random_state=RANDOM_STATE, stratify=y
     )
     print(f"\n  Train: {len(X_train_df)}  |  Test: {len(X_test_df)}")
+
+    # Compute class-imbalance weight from the filtered subset.
+    pos_rate = float(y.mean())
+    pos_weight = (1 - pos_rate) / pos_rate
+    print(f"  XGBoost scale_pos_weight: {pos_weight:.2f}")
 
     # Fill soil/weather NaN with training-set means to avoid test leakage.
     col_means = X_train_df.mean()
@@ -289,7 +299,7 @@ def main() -> None:
                 max_depth=5,
                 subsample=0.8,
                 colsample_bytree=0.8,
-                scale_pos_weight=POS_WEIGHT,
+                scale_pos_weight=pos_weight,
                 device="cuda",
                 verbosity=0,
                 eval_metric="logloss",
