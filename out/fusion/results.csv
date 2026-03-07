@@ -1,0 +1,5 @@
+model,Threshold,AUC,F1,Recall,Specif,Accuracy
+LogisticRegression,0.458,0.8509,0.5769,0.6818,0.7794,0.7556
+RandomForest,0.633,0.865,0.5455,0.4091,0.9706,0.8333
+XGBoost,0.46,0.8944,0.6512,0.6364,0.8971,0.8333
+LightGBM,0.502,0.873,0.6047,0.5909,0.8824,0.8111
