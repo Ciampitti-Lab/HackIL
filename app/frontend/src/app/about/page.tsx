@@ -1,10 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const s = {
   page: {
     minHeight: "100dvh",
-    background: "#0f1117",
-    color: "#e2e8f0",
+    background: "#ffffff",
+    color: "#0f172a",
     fontFamily: "var(--font-dm-sans, system-ui, sans-serif)",
   },
   header: {
@@ -13,13 +14,14 @@ const s = {
     justifyContent: "space-between",
     padding: "0 20px",
     height: 52,
-    borderBottom: "1px solid #1e293b",
+    borderBottom: "1px solid #e2e8f0",
+    background: "#ffffff",
   },
   logo: {
     fontFamily: "var(--font-fraunces, serif)",
     fontSize: 20,
     fontWeight: 700,
-    color: "#f1f5f9",
+    color: "#0f172a",
     letterSpacing: "-0.3px",
     textDecoration: "none",
   },
@@ -37,7 +39,7 @@ const s = {
     fontFamily: "var(--font-fraunces, serif)",
     fontSize: 32,
     fontWeight: 700,
-    color: "#f1f5f9",
+    color: "#0f172a",
     letterSpacing: "-0.5px",
     marginBottom: 8,
     marginTop: 0,
@@ -52,19 +54,19 @@ const s = {
     fontFamily: "var(--font-fraunces, serif)",
     fontSize: 20,
     fontWeight: 600,
-    color: "#f1f5f9",
+    color: "#0f172a",
     marginBottom: 10,
     marginTop: 36,
   },
   p: {
     fontSize: 14,
     lineHeight: 1.75,
-    color: "#94a3b8",
+    color: "#6b7280",
     margin: "0 0 12px",
   },
   card: {
-    background: "#1a1f2e",
-    border: "1px solid #2d3748",
+    background: "#f8fafc",
+    border: "1px solid #e2e8f0",
     borderRadius: 12,
     padding: "16px 20px",
     marginBottom: 12,
@@ -76,8 +78,8 @@ const s = {
     marginBottom: 12,
   },
   metric: {
-    background: "#111827",
-    border: "1px solid #1e293b",
+    background: "#f1f5f9",
+    border: "1px solid #e2e8f0",
     borderRadius: 8,
     padding: "10px 16px",
     flex: "1 1 140px",
@@ -93,7 +95,7 @@ const s = {
   metricValue: {
     fontSize: 22,
     fontWeight: 700,
-    color: "#f1f5f9",
+    color: "#0f172a",
     fontVariantNumeric: "tabular-nums" as const,
   },
   metricSub: {
@@ -116,7 +118,7 @@ const s = {
   },
   warningText: {
     fontSize: 13,
-    color: "#94a3b8",
+    color: "#6b7280",
     lineHeight: 1.6,
     margin: 0,
   },
@@ -126,17 +128,17 @@ const s = {
     fontWeight: 600,
     padding: "3px 8px",
     borderRadius: 20,
-    background: "#1e293b",
+    background: "#f1f5f9",
     color: "#64748b",
     marginRight: 6,
     marginBottom: 4,
   },
   divider: {
-    borderColor: "#1e293b",
+    borderColor: "#e2e8f0",
     margin: "36px 0",
   },
   a: {
-    color: "#0d9488",
+    color: "#b45309",
     textDecoration: "none",
   },
 };
@@ -145,8 +147,9 @@ export default function About() {
   return (
     <div style={s.page}>
       <header style={s.header}>
-        <Link href="/" style={s.logo}>
-          🌽 N Scout
+        <Link href="/" style={{ ...s.logo, display: "flex", alignItems: "center", gap: 10 }}>
+          <Image src="/logo.png" alt="Boilermaker Bushels" width={32} height={32} style={{ display: "block" }} />
+          <span>Boilermaker Bushels <span style={{ color: "#daaa00", fontWeight: 400 }}>|</span> N Scout</span>
         </Link>
         <Link href="/" style={s.navLink}>
           ← Back to map
@@ -165,7 +168,7 @@ export default function About() {
           <div style={s.warningTitle}>⚠ Research demonstration — not for production use</div>
           <p style={s.warningText}>
             This demo uses precomputed predictions on the 7 PRNT trial sites from 2016.{" "}
-            <strong style={{ color: "#e2e8f0" }}>
+            <strong style={{ color: "#0f172a" }}>
               Predictions include both training-set and test-set plots.
             </strong>{" "}
             Performance on training-set plots will appear inflated. The honest
@@ -184,23 +187,23 @@ export default function About() {
         </p>
         <div style={s.card}>
           <p style={{ ...s.p, margin: 0, lineHeight: 1.9 }}>
-            <strong style={{ color: "#e2e8f0" }}>1. Remote sensing features</strong> —
+            <strong style={{ color: "#0f172a" }}>1. Remote sensing features</strong> —
             16 spectral features per V-stage: 5 raw reflectance bands (B02 blue, B03 green,
             B04 red, B05 red-edge, B08 NIR) and 11 indices (NDVI, GNDVI, NDRE, EVI2,
             CIrededge, NIRv, SAVI, OSAVI, TGI, MCARI, OCARI) extracted from Sentinel-2
             (10 m) at growth stages V6 through V10 — 80 features total. Cloud gaps are
             filled using a nearest-in-time mosaic strategy.
             <br />
-            <strong style={{ color: "#e2e8f0" }}>2. Ground-truth labels</strong> —
+            <strong style={{ color: "#0f172a" }}>2. Ground-truth labels</strong> —
             Nitrogen Nutrition Index (NNI) computed from PRNT plant tissue N and
             biomass measurements. Plots with NNI &lt; 1.0 are labelled deficient (25.9 %).
             <br />
-            <strong style={{ color: "#e2e8f0" }}>3. Fusion features</strong> —
+            <strong style={{ color: "#0f172a" }}>3. Fusion features</strong> —
             9 soil nitrate / ammonium columns (PPNT + PSNT sampling times) and
             6 growing-season weather metrics (GDD, precipitation, solar radiation,
             heat days) aggregated over the planting to V10 window.
             <br />
-            <strong style={{ color: "#e2e8f0" }}>4. Classification</strong> —
+            <strong style={{ color: "#0f172a" }}>4. Classification</strong> —
             Logistic Regression trained with stage-dropout augmentation (robust to
             missing V-stages) and an F-beta (beta=2) threshold that weights recall over
             precision.
@@ -214,7 +217,7 @@ export default function About() {
           25.9 % N-deficient).
         </p>
 
-        <p style={{ ...s.p, fontWeight: 600, color: "#cbd5e1" }}>
+        <p style={{ ...s.p, fontWeight: 600, color: "#374151" }}>
           Satellite only (RS model)
         </p>
         <div style={s.metricRow}>
@@ -232,7 +235,7 @@ export default function About() {
           ))}
         </div>
 
-        <p style={{ ...s.p, fontWeight: 600, color: "#cbd5e1", marginTop: 16 }}>
+        <p style={{ ...s.p, fontWeight: 600, color: "#374151", marginTop: 16 }}>
           Satellite + Soil &amp; Weather (fusion model)
         </p>
         <div style={s.metricRow}>
@@ -242,9 +245,9 @@ export default function About() {
             { label: "F1", value: "0.870" },
             { label: "Specificity", value: "0.970" },
           ].map((m) => (
-            <div key={m.label} style={{ ...s.metric, borderColor: "#0d948840" }}>
+            <div key={m.label} style={{ ...s.metric, borderColor: "#daaa0040" }}>
               <div style={s.metricLabel}>{m.label}</div>
-              <div style={{ ...s.metricValue, color: "#0d9488" }}>{m.value}</div>
+              <div style={{ ...s.metricValue, color: "#7a5e00" }}>{m.value}</div>
               {m.sub && <div style={s.metricSub}>{m.sub}</div>}
             </div>
           ))}
@@ -279,7 +282,7 @@ export default function About() {
           ))}
         </div>
         <p style={s.p}>
-          Overall test accuracy: <strong style={{ color: "#e2e8f0" }}>98.5%</strong> on
+          Overall test accuracy: <strong style={{ color: "#0f172a" }}>98.5%</strong> on
           882 held-out images (7,056 train / 882 val / 882 test). Model: MobileNetV3-Small
           via timm, fine-tuned from ImageNet weights with Optuna HPO.
         </p>
@@ -289,7 +292,7 @@ export default function About() {
         <h2 style={s.h2}>Data</h2>
         <p style={s.p}>
           All field data are from the publicly available{" "}
-          <strong style={{ color: "#e2e8f0" }}>PRNT dataset</strong> (
+          <strong style={{ color: "#0f172a" }}>PRNT dataset</strong> (
           <em>
             Public-industry Research Network for N rate response studies in corn,
             2014–2016
@@ -300,13 +303,13 @@ export default function About() {
         </p>
         <p style={s.p}>
           Satellite imagery: Sentinel-2 Level-1C (TOA) via Google Earth Engine,{" "}
-          <code style={{ fontSize: 12, color: "#94a3b8" }}>
+          <code style={{ fontSize: 12, color: "#6b7280" }}>
             COPERNICUS/S2_HARMONIZED
           </code>
           , cloud-filtered at 30 % scene level + QA60 pixel mask.
         </p>
         <div style={s.card}>
-          <p style={{ ...s.p, margin: "0 0 8px", fontWeight: 600, color: "#cbd5e1" }}>
+          <p style={{ ...s.p, margin: "0 0 8px", fontWeight: 600, color: "#374151" }}>
             Trial sites used
           </p>
           {[
@@ -343,7 +346,7 @@ export default function About() {
         <h2 style={s.h2}>Team</h2>
         <p style={s.p}>
           Built at{" "}
-          <strong style={{ color: "#e2e8f0" }}>Precision & Digital Agriculture Hackathon</strong> by Gustavo, Leonardo, Natalia, Pedro from the
+          <strong style={{ color: "#0f172a" }}>Precision & Digital Agriculture Hackathon</strong> by Gustavo, Leonardo, Natalia, Pedro from the
           Ciampitti Lab, Purdue University.
         </p>
       </main>

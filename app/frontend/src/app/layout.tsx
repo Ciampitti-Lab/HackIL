@@ -15,7 +15,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "N Scout",
+  title: "Boilermaker Bushels | N Scout",
   description: "Nitrogen deficiency scouting for corn fields · Sentinel-2 + PRNT",
 };
 

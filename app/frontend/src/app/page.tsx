@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { TrialGeoJSON } from "./ScoutingMap";
@@ -18,8 +19,8 @@ const s = {
     display: "flex",
     flexDirection: "column" as const,
     height: "100dvh",
-    background: "#0f1117",
-    color: "#e2e8f0",
+    background: "#ffffff",
+    color: "#0f172a",
     fontFamily: "var(--font-dm-sans, system-ui, sans-serif)",
   },
   header: {
@@ -28,14 +29,15 @@ const s = {
     justifyContent: "space-between",
     padding: "0 16px",
     height: 52,
-    borderBottom: "1px solid #1e293b",
+    borderBottom: "1px solid #e2e8f0",
+    background: "#ffffff",
     flexShrink: 0,
   },
   logo: {
     fontFamily: "var(--font-fraunces, serif)",
     fontSize: 20,
     fontWeight: 700,
-    color: "#f1f5f9",
+    color: "#0f172a",
     letterSpacing: "-0.3px",
   },
   navLink: {
@@ -54,8 +56,8 @@ const s = {
     alignItems: "center",
     gap: 12,
     padding: "8px 16px",
-    background: "#111827",
-    borderBottom: "1px solid #1e293b",
+    background: "#f8fafc",
+    borderBottom: "1px solid #e2e8f0",
     flexShrink: 0,
     flexWrap: "wrap" as const,
   },
@@ -65,8 +67,8 @@ const s = {
     overflow: "hidden",
   },
   controls: {
-    background: "#111827",
-    borderBottom: "1px solid #1e293b",
+    background: "#f8fafc",
+    borderBottom: "1px solid #e2e8f0",
     padding: "12px 16px 16px",
     flexShrink: 0,
     display: "flex",
@@ -82,10 +84,10 @@ const s = {
     marginBottom: 4,
   },
   select: {
-    background: "#1e293b",
-    border: "1px solid #334155",
+    background: "#ffffff",
+    border: "1px solid #d1d5db",
     borderRadius: 8,
-    color: "#e2e8f0",
+    color: "#0f172a",
     fontSize: 14,
     padding: "8px 10px",
     width: "100%",
@@ -101,9 +103,9 @@ const s = {
     padding: "7px 0",
     borderRadius: 7,
     border: "1px solid",
-    borderColor: active ? "#0d9488" : "#334155",
-    background: active ? "#0d948820" : "transparent",
-    color: active ? "#0d9488" : "#94a3b8",
+    borderColor: active ? "#daaa00" : "#d1d5db",
+    background: active ? "#daaa0020" : "transparent",
+    color: active ? "#7a5e00" : "#6b7280",
     fontSize: 12,
     fontWeight: 600,
     cursor: "pointer",
@@ -117,7 +119,7 @@ const s = {
   },
   toggleLabel: {
     fontSize: 13,
-    color: "#cbd5e1",
+    color: "#374151",
     lineHeight: 1.4,
   },
   toggleSub: {
@@ -131,7 +133,7 @@ const s = {
     width: 40,
     height: 22,
     borderRadius: 11,
-    background: on ? "#0d9488" : "#334155",
+    background: on ? "#daaa00" : "#d1d5db",
     cursor: "pointer",
     border: "none",
     padding: 0,
@@ -155,9 +157,9 @@ const s = {
     textTransform: "uppercase" as const,
     padding: "3px 8px",
     borderRadius: 20,
-    background: fusion ? "#0d948830" : "#1e40af30",
-    color: fusion ? "#0d9488" : "#60a5fa",
-    border: `1px solid ${fusion ? "#0d948850" : "#3b82f650"}`,
+    background: fusion ? "#daaa0025" : "#dbeafe",
+    color: fusion ? "#7a5e00" : "#3b82f6",
+    border: `1px solid ${fusion ? "#daaa0055" : "#93c5fd"}`,
   }),
   defBadge: {
     display: "inline-flex",
@@ -233,7 +235,10 @@ export default function Home() {
     <div style={s.page}>
       {/* ── Header ── */}
       <header style={s.header}>
-        <span style={s.logo}>🌽 N Scout</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Image src="/logo.png" alt="Boilermaker Bushels" width={32} height={32} style={{ display: "block" }} />
+          <span style={s.logo}>Boilermaker Bushels <span style={{ color: "#daaa00", fontWeight: 400 }}>|</span> N Scout</span>
+        </div>
         <Link href="/about" style={s.navLink}>
           About
         </Link>
@@ -246,12 +251,12 @@ export default function Home() {
             <span style={s.dot("#f59e0b")} />
             {deficient} deficient
           </span>
-          <span style={{ color: "#334155" }}>·</span>
+          <span style={{ color: "#d1d5db" }}>·</span>
           <span style={s.sufBadge}>
             <span style={s.dot("#0d9488")} />
             {total - deficient} sufficient
           </span>
-          <span style={{ color: "#334155" }}>·</span>
+          <span style={{ color: "#d1d5db" }}>·</span>
           <span style={{ fontSize: 12, color: "#64748b" }}>
             {total} plots · using {stageLabel}
           </span>
@@ -282,7 +287,7 @@ export default function Home() {
           <div>
             <div style={s.label}>
               I&apos;m at growth stage{" "}
-              <span style={{ color: "#e2e8f0" }}>{currentStageLabel}</span>
+              <span style={{ color: "#0f172a", fontWeight: 600 }}>{currentStageLabel}</span>
               <span style={{ color: "#475569", fontWeight: 400, marginLeft: 6 }}>
                 · using imagery from {stageLabel}
               </span>
@@ -336,7 +341,7 @@ export default function Home() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                background: "#0f1117cc",
+                background: "#ffffffcc",
                 zIndex: 1000,
                 fontSize: 14,
                 color: "#64748b",
@@ -356,15 +361,15 @@ export default function Home() {
         style={{
           flexShrink: 0,
           padding: "6px 16px",
-          borderTop: "1px solid #1e293b",
-          background: "#0a0e18",
+          borderTop: "1px solid #e2e8f0",
+          background: "#f8fafc",
           fontSize: 10,
-          color: "#334155",
+          color: "#6b7280",
           textAlign: "center" as const,
           lineHeight: 1.5,
         }}
       >
-        <strong style={{ color: "#475569" }}>Proof of concept.</strong> Predictions shown include plots used during model training and are not an independent validation &mdash; for demonstration only.
+        <strong style={{ color: "#374151" }}>Proof of concept.</strong> Predictions shown include plots used during model training and are not an independent validation &mdash; for demonstration only.
         Test-set honest performance: AUC&nbsp;0.634 (Satellite only) / AUC&nbsp;0.904 (Satellite + Soil &amp; Weather).
       </footer>
     </div>
