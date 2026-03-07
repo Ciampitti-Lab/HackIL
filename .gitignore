@@ -11,3 +11,4 @@ wheels/
 
 # Datasets tmp storage
 data/tmp
+data/proximal_data
