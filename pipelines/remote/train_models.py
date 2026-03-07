@@ -20,17 +20,9 @@ Outputs:
   out/remote_sensing/train_col_means.csv    - column means for inference imputation
 """
 
-import pickle
-from pathlib import Path
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from lightgbm import LGBMClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
@@ -39,9 +31,18 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from xgboost import XGBClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from lightgbm import LGBMClassifier
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import pickle
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
 
 DATASET = Path("data/processed/training_dataset_filtered.csv")
 MODELS_DIR = Path("models/remote_sensing")
@@ -49,18 +50,33 @@ OUT_DIR = Path("out/remote_sensing")
 
 STAGES = ["V6", "V7", "V8", "V9", "V10"]
 FEATURE_COLS_PREFIX = [
-    "NDVI", "GNDVI", "NDRE", "EVI2", "CIrededge",
-    "NIRv", "SAVI", "OSAVI", "TGI", "MCARI", "OCARI",
-    "blue_B02", "green_B03", "red_B04", "rededge_B05", "nir_B08",
+    "NDVI",
+    "GNDVI",
+    "NDRE",
+    "EVI2",
+    "CIrededge",
+    "NIRv",
+    "SAVI",
+    "OSAVI",
+    "TGI",
+    "MCARI",
+    "OCARI",
+    "blue_B02",
+    "green_B03",
+    "red_B04",
+    "rededge_B05",
+    "nir_B08",
 ]
 RANDOM_STATE = 42
-DROPOUT_COPIES = 5   # augmented versions per plot per training pass
-POS_WEIGHT = (1 - 0.217) / 0.217   # ~3.6 for XGBoost scale_pos_weight
+DROPOUT_COPIES = 5  # augmented versions per plot per training pass
+POS_WEIGHT = (1 - 0.217) / 0.217  # ~3.6 for XGBoost scale_pos_weight
 
 
 def load_data() -> tuple[pd.DataFrame, pd.Series, list[str]]:
     df = pd.read_csv(DATASET)
-    feat_cols = [c for c in df.columns if any(c.startswith(p) for p in FEATURE_COLS_PREFIX)]
+    feat_cols = [
+        c for c in df.columns if any(c.startswith(p) for p in FEATURE_COLS_PREFIX)
+    ]
     X = df[feat_cols].fillna(df[feat_cols].mean())
     y = (df["nni"] < 1.0).astype(int)
     print(f"  Features: {X.shape[1]}  |  Plots: {len(X)}")
@@ -87,7 +103,9 @@ def dropout_augment(
     X_np = X.values.copy()
     y_np = y.values
 
-    stage_idx = {s: [feat_cols.index(c) for c in stage_cols(feat_cols, s)] for s in STAGES}
+    stage_idx = {
+        s: [feat_cols.index(c) for c in stage_cols(feat_cols, s)] for s in STAGES
+    }
     means_np = col_means.values
 
     aug_X = [X_np]
@@ -123,7 +141,9 @@ def simulate_stages(
     return X_sim.values
 
 
-def best_threshold_metrics(model, X_test, y_test, threshold: float | None = None) -> dict:
+def best_threshold_metrics(
+    model, X_test, y_test, threshold: float | None = None
+) -> dict:
     """
     Evaluate a classifier on X_test/y_test at a fixed decision threshold.
 
@@ -139,11 +159,11 @@ def best_threshold_metrics(model, X_test, y_test, threshold: float | None = None
     tn, fp, fn, tp = confusion_matrix(y_test, pred).ravel()
     return {
         "Threshold": round(threshold, 3),
-        "AUC":       round(roc_auc_score(y_test, proba), 4),
-        "F1":        round(f1_score(y_test, pred, zero_division=0), 4),
-        "Recall":    round(recall_score(y_test, pred, zero_division=0), 4),
-        "Specif":    round(tn / (tn + fp), 4),
-        "Accuracy":  round(accuracy_score(y_test, pred), 4),
+        "AUC": round(roc_auc_score(y_test, proba), 4),
+        "F1": round(f1_score(y_test, pred, zero_division=0), 4),
+        "Recall": round(recall_score(y_test, pred, zero_division=0), 4),
+        "Specif": round(tn / (tn + fp), 4),
+        "Accuracy": round(accuracy_score(y_test, pred), 4),
     }
 
 
@@ -158,7 +178,7 @@ def find_threshold(model, X_train, y_train, beta: float = 2.0) -> float:
     """
     proba = model.predict_proba(X_train)[:, 1]
     precisions, recalls, thresholds = precision_recall_curve(y_train, proba)
-    b2 = beta ** 2
+    b2 = beta**2
     fbeta = (1 + b2) * precisions * recalls / (b2 * precisions + recalls + 1e-9)
     return float(thresholds[np.argmax(fbeta[:-1])]) if len(thresholds) else 0.5
 
@@ -179,7 +199,9 @@ def main() -> None:
     col_means = X_train_df.mean()
     col_means.to_csv(OUT_DIR / "train_col_means.csv")
 
-    print(f"\nAugmenting with stage dropout ({DROPOUT_COPIES} copies x {len(X_train_df)} plots)...")
+    print(
+        f"\nAugmenting with stage dropout ({DROPOUT_COPIES} copies x {len(X_train_df)} plots)..."
+    )
     X_aug, y_aug = dropout_augment(X_train_df, y_train, feat_cols, col_means)
     print(f"  Augmented train size: {len(X_aug):,} rows")
 
@@ -190,33 +212,54 @@ def main() -> None:
 
     # Train each classifier, find the F1-optimal threshold on training preds,
     # and apply it fixed to the test set.
-    print("\nClassification with stage-dropout training (all 5 stages held out for test):")
+    print(
+        "\nClassification with stage-dropout training (all 5 stages held out for test):"
+    )
     clf_defs = {
         "LogisticRegression": (
-            LogisticRegression(max_iter=1000, class_weight="balanced", random_state=RANDOM_STATE),
+            LogisticRegression(
+                max_iter=1000, class_weight="balanced", random_state=RANDOM_STATE
+            ),
             True,
         ),
         "RandomForest": (
-            RandomForestClassifier(n_estimators=300, class_weight="balanced", random_state=RANDOM_STATE),
+            RandomForestClassifier(
+                n_estimators=300, class_weight="balanced", random_state=RANDOM_STATE
+            ),
             False,
         ),
         "XGBoost": (
-            XGBClassifier(n_estimators=300, learning_rate=0.05, max_depth=5,
-                          subsample=0.8, colsample_bytree=0.8, scale_pos_weight=POS_WEIGHT,
-                          device="cuda", verbosity=0, eval_metric="logloss",
-                          random_state=RANDOM_STATE),
+            XGBClassifier(
+                n_estimators=300,
+                learning_rate=0.05,
+                max_depth=5,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                scale_pos_weight=POS_WEIGHT,
+                device="cuda",
+                verbosity=0,
+                eval_metric="logloss",
+                random_state=RANDOM_STATE,
+            ),
             False,
         ),
         "LightGBM": (
-            LGBMClassifier(n_estimators=300, learning_rate=0.05, max_depth=5,
-                           subsample=0.8, colsample_bytree=0.8, class_weight="balanced",
-                           random_state=RANDOM_STATE, verbose=-1),
+            LGBMClassifier(
+                n_estimators=300,
+                learning_rate=0.05,
+                max_depth=5,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                class_weight="balanced",
+                random_state=RANDOM_STATE,
+                verbose=-1,
+            ),
             False,
         ),
     }
 
     results = []
-    fitted = {}   # name -> (model, scaled, threshold)
+    fitted = {}  # name -> (model, scaled, threshold)
     best_recall, best_name = -np.inf, None
 
     for name, (model, scaled) in clf_defs.items():
@@ -228,16 +271,29 @@ def main() -> None:
         m = best_threshold_metrics(model, Xte, y_test, threshold=thresh)
         results.append({"model": name, **m})
         fitted[name] = (model, scaled, thresh)
-        print(f"  {name:<20}  AUC={m['AUC']:.4f}  F1={m['F1']:.4f}  "
-              f"Recall={m['Recall']:.4f}  Specif={m['Specif']:.4f}  (thresh={m['Threshold']})")
+        print(
+            f"  {name:<20}  AUC={m['AUC']:.4f}  F1={m['F1']:.4f}  "
+            f"Recall={m['Recall']:.4f}  Specif={m['Specif']:.4f}  (thresh={m['Threshold']})"
+        )
         if m["Recall"] > best_recall:
             best_recall, best_name = m["Recall"], name
 
     best_model, best_scaled, best_thresh = fitted[best_name]
-    print(f"\n  Best model: {best_name} (Recall={best_recall:.4f}, thresh={best_thresh:.3f})")
+    print(
+        f"\n  Best model: {best_name} (Recall={best_recall:.4f}, thresh={best_thresh:.3f})"
+    )
     with open(MODELS_DIR / f"{best_name}_clf.pkl", "wb") as f:
-        pickle.dump({"model": best_model, "scaler": scaler, "col_means": col_means,
-                     "feat_cols": feat_cols, "stages": STAGES, "threshold": best_thresh}, f)
+        pickle.dump(
+            {
+                "model": best_model,
+                "scaler": scaler,
+                "col_means": col_means,
+                "feat_cols": feat_cols,
+                "stages": STAGES,
+                "threshold": best_thresh,
+            },
+            f,
+        )
 
     pd.DataFrame(results).to_csv(OUT_DIR / "results.csv", index=False)
 
@@ -260,15 +316,19 @@ def main() -> None:
         print(f"  {n} [{label}]:  " + "  |  ".join(row_parts))
 
     # Plot
-    colors = {"LogisticRegression": "#2196F3", "RandomForest": "#4CAF50",
-               "XGBoost": "#FF5722", "LightGBM": "#9C27B0"}
+    colors = {
+        "LogisticRegression": "#2196F3",
+        "RandomForest": "#4CAF50",
+        "XGBoost": "#FF5722",
+        "LightGBM": "#9C27B0",
+    }
     x = list(range(1, len(STAGES) + 1))
     x_labels = ["+".join(STAGES[:n]) for n in x]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
     for name in clf_defs:
         ax1.plot(x, curve[name]["AUC"], marker="o", label=name, color=colors[name])
-        ax2.plot(x, curve[name]["F1"],  marker="o", label=name, color=colors[name])
+        ax2.plot(x, curve[name]["F1"], marker="o", label=name, color=colors[name])
 
     for ax, metric in [(ax1, "AUC (ROC)"), (ax2, "F1 score")]:
         ax.set_xlabel("Stages available at inference")
@@ -281,7 +341,10 @@ def main() -> None:
         ax.axhline(0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
         ax.grid(True, alpha=0.3)
 
-    fig.suptitle("N-deficiency classifier: stage-dropout training\nAUC & F1 vs. stages available at inference", fontsize=11)
+    fig.suptitle(
+        "N-deficiency classifier: stage-dropout training\nAUC & F1 vs. stages available at inference",
+        fontsize=11,
+    )
     fig.tight_layout()
     plot_path = OUT_DIR / "stage_curve.png"
     fig.savefig(plot_path, dpi=150)
