@@ -109,7 +109,7 @@ function ProximalContent() {
           </span>
         </div>
         <Link href="/" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>
-          ← Back to map
+          Back to map
         </Link>
       </header>
 

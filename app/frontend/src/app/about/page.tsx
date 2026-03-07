@@ -152,7 +152,7 @@ export default function About() {
           <span>Boilermaker Bushels <span style={{ color: "#daaa00", fontWeight: 400 }}>|</span> N Scout</span>
         </Link>
         <Link href="/" style={s.navLink}>
-          ← Back to map
+          Back to map
         </Link>
       </header>
 
