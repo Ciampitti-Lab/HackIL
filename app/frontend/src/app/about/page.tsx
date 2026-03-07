@@ -13,7 +13,7 @@ const s = {
     alignItems: "center",
     justifyContent: "space-between",
     padding: "0 20px",
-    height: 52,
+    height: 68,
     borderBottom: "1px solid #e2e8f0",
     background: "#ffffff",
   },
@@ -147,9 +147,9 @@ export default function About() {
   return (
     <div style={s.page}>
       <header style={s.header}>
-        <Link href="/" style={{ ...s.logo, display: "flex", alignItems: "center", gap: 10 }}>
-          <Image src="/logo.png" alt="Boilermaker Bushels" width={32} height={32} style={{ display: "block" }} />
-          <span>Boilermaker Bushels <span style={{ color: "#daaa00", fontWeight: 400 }}>|</span> N Scout</span>
+        <Link href="/" style={{ ...s.logo, display: "flex", alignItems: "center", gap: 14 }}>
+          <Image src="/logo.png" alt="Boilermaker Bushels" width={130} height={52} style={{ display: "block" }} />
+          <span><span style={{ color: "#daaa00", fontWeight: 400 }}>|</span> N Scout</span>
         </Link>
         <Link href="/" style={s.navLink}>
           Back to map

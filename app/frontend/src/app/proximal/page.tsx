@@ -101,11 +101,11 @@ function ProximalContent() {
     <div style={{ minHeight: "100dvh", background: "#ffffff", color: "#0f172a", fontFamily: "var(--font-dm-sans, system-ui, sans-serif)", display: "flex", flexDirection: "column" }}>
 
       {/* Header */}
-      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 52, borderBottom: "1px solid #e2e8f0", background: "#ffffff", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Image src="/logo.png" alt="Boilermaker Bushels" width={32} height={32} style={{ display: "block" }} />
+      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", height: 68, borderBottom: "1px solid #e2e8f0", background: "#ffffff", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <Image src="/logo.png" alt="Boilermaker Bushels" width={130} height={52} style={{ display: "block" }} />
           <span style={{ fontFamily: "var(--font-fraunces, serif)", fontSize: 20, fontWeight: 700, color: "#0f172a", letterSpacing: "-0.3px" }}>
-            Boilermaker Bushels <span style={{ color: "#daaa00", fontWeight: 400 }}>|</span> N Scout
+            <span style={{ color: "#daaa00", fontWeight: 400 }}>|</span> N Scout
           </span>
         </div>
         <Link href="/" style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>
