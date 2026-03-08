@@ -3,7 +3,9 @@
 # Boilermakers Bushels: N Scout
 ***[Precision & Digital Agriculture Hackathon (UIUC - 2026)](https://digitalag.illinois.edu/precision-digital-agriculture-hackathon/)***
 
-**Nitrogen deficiency detection and scouting for corn fields**  
+**Nitrogen deficiency detection and scouting for corn fields**
+
+[![Live Prototype](https://img.shields.io/badge/Live_Prototype-Deployed_on_Render-blue)](https://hackil.onrender.com/)
 
 <h3>
   <a href="https://gustavosantiago.shinyapps.io/WebResume/">Gustavo Santiago</a> · 
@@ -166,10 +168,6 @@ Adding soil and weather context improves AUC by **+0.27** and F1 from 0.514 → 
 
 ## Demo
 
-<p align="center">
-  <video src=".github/demo.mp4" controls width="100%"></video>
-</p>
-
 **Scouting map** (desktop):
 
 <p align="center"><img src=".github/main_page.png" alt="Scouting map"/></p>
@@ -191,7 +189,12 @@ Adding soil and weather context improves AUC by **+0.27** and F1 from 0.514 → 
   </tr>
 </table>
 
-The live prototype is served as a Docker image on Render. It includes:
+**GIF**:
+<div align="center">
+  <img src=".github/demo.gif" width="1000" alt="Demo">
+</div>
+
+The [live prototype](https://hackil.onrender.com/) is served as a Docker image on Render. It includes:
 - An interactive scouting map for all 7 PRNT trial sites
 - Controls for growth stage (V6–V10) and model type (Satellite only / Satellite + Soil & Weather)
 - Per-plot popup with predicted status, confidence, ground-truth NNI, and N application rates (kg/ha SI)
