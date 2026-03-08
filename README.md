@@ -40,9 +40,9 @@ The system is demonstrated on the **PRNT dataset**: 49 site-years of public-indu
 
 | Source | Content | Coverage |
 |---|---|---|
-| PRNT (Dryad) | Plot boundaries, N treatments, plant tissue N, biomass, soil nitrate, weather | 7 trials, 2016 |
+| [PRNT Dryad](https://datadryad.org/dataset/doi:10.5061/dryad.66t1g1k2g) | Plot boundaries, N treatments, plant tissue N, biomass, soil nitrate, weather | 7 trials, 2016 |
 | Sentinel-2 (`COPERNICUS/S2_HARMONIZED`) | 10 m multispectral imagery, L1C/TOA | V6–V10 per trial |
-| Maize leaf image dataset | 8,820 labeled images across 6 nutrient classes | Train/Val/Test split |
+| [Maize leaf image dataset](https://www.kaggle.com/datasets/ashishpatelresearch/maize-plant-leaf-nutrient-deficiency-dataset) | 8,820 labeled images across 6 nutrient classes | Train/Val/Test split |
 
 ### Ground-Truth Label: Nitrogen Nutrition Index (NNI)
 
