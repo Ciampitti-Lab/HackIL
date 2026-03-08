@@ -132,7 +132,7 @@ function ProximalContent() {
           </div>
         ) : null}
         <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 28, marginTop: 4, lineHeight: 1.6 }}>
-          Tap a leaf image below to run it through the MobileNetV3 classifier. One sample per nutrient class, cherry-picked from the test split.
+          Tap a leaf image below to run it through the MobileNetV3 classifier. One sample per nutrient class.
         </p>
 
         {/* 6-image grid (one row) */}
