@@ -166,7 +166,30 @@ Adding soil and weather context improves AUC by **+0.27** and F1 from 0.514 → 
 
 ## Demo
 
-> **Video demo:** *(recording in progress; will be linked here)*
+<p align="center">
+  <video src=".github/demo.mp4" controls width="100%"></video>
+</p>
+
+**Scouting map** (desktop):
+
+<p align="center"><img src=".github/main_page.png" alt="Scouting map"/></p>
+
+**Proximal leaf classifier** (desktop):
+
+<p align="center"><img src=".github/proximal_page.png" alt="Proximal scouting page"/></p>
+
+**Mobile views:**
+
+<table align="center">
+  <tr>
+    <td><img src=".github/mobile_main_page.png" alt="Mobile scouting map" width="320"/></td>
+    <td><img src=".github/mobile_proximal_page.png" alt="Mobile proximal page" width="320"/></td>
+  </tr>
+  <tr>
+    <td align="center">Scouting map</td>
+    <td align="center">Proximal classifier</td>
+  </tr>
+</table>
 
 The live prototype is served as a Docker image on Render. It includes:
 - An interactive scouting map for all 7 PRNT trial sites
